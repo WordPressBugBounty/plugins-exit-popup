@@ -5,7 +5,7 @@ Plugin URI: https://www.brontobytes.com/
 Description: Exit Popup enables you to display a jQuery modal before a visitor leaves your website.
 Author: Brontobytes
 Author URI: https://www.brontobytes.com/
-Version: 3.2
+Version: 3.3
 License: GPLv2
 Text Domain: exit-popup
 Domain Path: /languages
