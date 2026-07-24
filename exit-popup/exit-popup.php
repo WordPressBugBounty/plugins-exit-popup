@@ -5,7 +5,7 @@ Plugin URI: https://www.brontobytes.com/
 Description: Exit Popup enables you to display a jQuery modal before a visitor leaves your website.
 Author: Brontobytes
 Author URI: https://www.brontobytes.com/
-Version: 3.3
+Version: 3.4
 License: GPLv2
 Text Domain: exit-popup
 Domain Path: /languages
@@ -172,8 +172,10 @@ function exit_popup_settings_page() { ?>
   		  <td>
  		     <?php $languages = apply_filters( 'wpml_active_languages', NULL, 'orderby=id&order=desc' );
  		           $enabled_languages = get_option('exit_popup_languages');
+ 		           $enabled_languages = is_array( $enabled_languages ) ? $enabled_languages : array();
+ 		           $languages = is_array( $languages ) ? $languages : array();
  		     foreach ($languages as $key => $value) : ?>
- 		       <label style="padding-right: 15px;"><input type="checkbox" name="exit_popup_languages[<?php echo $key;?>]" value="<?php echo $key; ?>" <?php checked( $key, $enabled_languages[$key], true); ?> />&nbsp;<?php echo $value['native_name']; ?></label>
+ 		       <label style="padding-right: 15px;"><input type="checkbox" name="exit_popup_languages[<?php echo $key;?>]" value="<?php echo $key; ?>" <?php checked( $key, isset( $enabled_languages[$key] ) ? $enabled_languages[$key] : '', true); ?> />&nbsp;<?php echo $value['native_name']; ?></label>
  		     <?php endforeach; ?>
  		   </td>
   		</tr>
@@ -343,6 +345,7 @@ function exit_popup() {
 	$check_lg = true;
 	if( array_key_exists( 'wpml_object_id' , $GLOBALS['wp_filter']) ) {
 		$epp_lg = get_option('exit_popup_languages');
+        $epp_lg = is_array( $epp_lg ) ? $epp_lg : array();
   
 		$current_lg = ICL_LANGUAGE_CODE;
   

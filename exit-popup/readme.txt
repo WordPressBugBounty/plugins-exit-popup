@@ -3,8 +3,8 @@
 Contributors: brontobytes
 Tags: exit popup, subscription popup, exit overlay, exit overlay popup, exit popups, list building, mailchimp, mailchimp exit popup, mailchimp popup, mailchimp subscription form, mailchimp subscription popup, newsletter, popup, modal, exit modal, popup before user leaves, popup editor, jquery popup, jquery modal, popup on page load, popup on scroll, Popup plugin, popup with image, signup form, subscription form, brontobytes
 Requires at least: 3.8
-Tested up to: 6.8.3
-Stable tag: 3.3
+Tested up to: 7.0.2
+Stable tag: 3.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ That's all!
 
 
 == Changelog ==
+
+= Version 3.4 =
+1. PHP 8.5 compatibility checkup.
+2. Improved WPML language option handling to avoid warnings when no languages are selected.
 
 = Version 3.3 =
 1. PHP 8.4 checkup.
