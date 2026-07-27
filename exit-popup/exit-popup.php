@@ -5,7 +5,7 @@ Plugin URI: https://www.brontobytes.com/
 Description: Exit Popup enables you to display a jQuery modal before a visitor leaves your website.
 Author: Brontobytes
 Author URI: https://www.brontobytes.com/
-Version: 3.4
+Version: 3.5
 License: GPLv2
 Text Domain: exit-popup
 Domain Path: /languages
@@ -52,6 +52,24 @@ function exis_popup_settings_plugin_link( $links, $file )
         $links[] = '<a href="options-general.php?page=exit-popup-settings">'.__('Settings','mtt').'</a>';
     }
     return $links;
+}
+
+function exit_popup_get_dimension( $option_name, $default = '' ) {
+    $value = trim( (string) get_option( $option_name, $default ) );
+
+    if ( '' === $value ) {
+        return $default;
+    }
+
+    if ( preg_match( '/^\d+(\.\d+)?(px|%)?$/', $value ) !== 1 ) {
+        return $default;
+    }
+
+    if ( preg_match( '/(px|%)$/', $value ) !== 1 ) {
+        $value .= 'px';
+    }
+
+    return $value;
 }
 
 
@@ -118,6 +136,18 @@ function exit_popup_settings_page() { ?>
 				<input type="text" size="10" name="exit_popup_modal_height" value="<?php echo esc_attr( get_option('exit_popup_modal_height') ); ?>" /><br /><small><?php echo __('E.g.: 500px or 50%', 'exit-popup'); ?></small>
 			</td>
 		</tr>
+        <tr valign="top">
+            <th scope="row"><?php echo __('Mobile modal width (px or %)', 'exit-popup'); ?></th>
+            <td>
+                <input type="text" size="10" name="exit_popup_mobile_modal_width" value="<?php echo esc_attr( get_option('exit_popup_mobile_modal_width') ); ?>" /><br /><small><?php echo __('Leave empty to use the desktop width. E.g.: 92% or 340px', 'exit-popup'); ?></small>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><?php echo __('Mobile modal height (px or %)', 'exit-popup'); ?></th>
+            <td>
+                <input type="text" size="10" name="exit_popup_mobile_modal_height" value="<?php echo esc_attr( get_option('exit_popup_mobile_modal_height') ); ?>" /><br /><small><?php echo __('Leave empty to use the desktop height. E.g.: 80% or 500px', 'exit-popup'); ?></small>
+            </td>
+        </tr>
         <tr valign="top">
 			<th scope="row"><?php echo __('Title background colour', 'exit-popup'); ?></th>
 			<td>
@@ -272,6 +302,8 @@ function exit_popup_settings() {
 	register_setting( 'exit-popup-settings', 'exit_popup_click_outside' );
 	register_setting( 'exit-popup-settings', 'exit_popup_modal_width' );
 	register_setting( 'exit-popup-settings', 'exit_popup_modal_height' );
+    register_setting( 'exit-popup-settings', 'exit_popup_mobile_modal_width' );
+    register_setting( 'exit-popup-settings', 'exit_popup_mobile_modal_height' );
 	register_setting( 'exit-popup-settings', 'exit_popup_popup_title_color' );
 	register_setting( 'exit-popup-settings', 'exit_popup_popup_title' );
 	register_setting( 'exit-popup-settings', 'exit_popup_popup_body' );
@@ -289,6 +321,8 @@ function exit_popup_deactivation() {
     delete_option( 'exit_popup_click_outside' );
     delete_option( 'exit_popup_modal_width' );
     delete_option( 'exit_popup_modal_height' );
+    delete_option( 'exit_popup_mobile_modal_width' );
+    delete_option( 'exit_popup_mobile_modal_height' );
     delete_option( 'exit_popup_popup_title_color' );
     delete_option( 'exit_popup_popup_title' );
     delete_option( 'exit_popup_popup_body' );
@@ -362,15 +396,46 @@ function exit_popup() {
 	} else {
 		$exit_popup_click_outside = "
       $('body').on('click', function() {
-        $('#exitpopup-modal').hide();
+        exitPopupCloseModal();
       });
 		";
 	}
+
+    $modal_width = exit_popup_get_dimension( 'exit_popup_modal_width', '500px' );
+    $modal_height = exit_popup_get_dimension( 'exit_popup_modal_height', '300px' );
+    $mobile_modal_width = exit_popup_get_dimension( 'exit_popup_mobile_modal_width', $modal_width );
+    $mobile_modal_height = exit_popup_get_dimension( 'exit_popup_mobile_modal_height', $modal_height );
 ?>
 <!-- Exit Popup -->
+    <style type="text/css">
+        html.exit-popup-open,
+        body.exit-popup-open {
+            overflow: hidden !important;
+        }
+
+        #exitpopup-modal {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #exitpopup-modal .exitpopup-modal-window {
+            width: <?php echo esc_attr( $modal_width ); ?> !important;
+            height: <?php echo esc_attr( $modal_height ); ?> !important;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+        }
+
+        @media screen and (max-width: 768px) {
+            #exitpopup-modal .exitpopup-modal-window {
+                width: <?php echo esc_attr( $mobile_modal_width ); ?> !important;
+                height: <?php echo esc_attr( $mobile_modal_height ); ?> !important;
+            }
+        }
+    </style>
     <div id='exitpopup-modal'>
       <div class='underlay'></div>
-	  <div class='exitpopup-modal-window' style='width:<?php echo esc_attr( get_option('exit_popup_modal_width') ); if (preg_match('(px|%)', esc_attr( get_option('exit_popup_modal_height') )) !== 1) { echo 'px'; } ?> !important; height:<?php echo esc_attr( get_option('exit_popup_modal_height') ); if (preg_match('(px|%)', esc_attr( get_option('exit_popup_modal_height') )) !== 1) { echo 'px'; } ?> !important;'>
+	  <div class='exitpopup-modal-window'>
           <?php $title_background_color = get_option('exit_popup_popup_title_color');
           if(!empty($title_background_color))
           {
@@ -403,6 +468,10 @@ function exit_popup() {
 	  jQuery(document).ready(function($) {
       var exit_popup_value = Cookies.get('viewedExitPopupWP'); // v3.0
       if(!exit_popup_value){ // v3.0
+      function exitPopupCloseModal() {
+        $('#exitpopup-modal').hide();
+        $('html, body').removeClass('exit-popup-open');
+      }
 	  var _exitpopup = exitpopup(document.getElementById('exitpopup-modal'), {
         aggressive: true,
         timer: 0,
@@ -410,12 +479,15 @@ function exit_popup() {
 		delay: 0,
         sitewide: true,
 		cookieExpire: <?php echo esc_attr( get_option('exit_popup_cookie_expire') ); ?>,
-        callback: function() { console.log('exitpopup fired!'); }
+        callback: function() {
+          $('html, body').addClass('exit-popup-open');
+          console.log('exitpopup fired!');
+        }
       });
 
       <?php echo $exit_popup_click_outside; ?>
       $('#exitpopup-modal .exitpopup-modal-footer').on('click', function() {
-        $('#exitpopup-modal').hide();
+        exitPopupCloseModal();
       });
       $('#exitpopup-modal .exitpopup-modal-window').on('click', function(e) {
         e.stopPropagation();
