@@ -75,10 +75,14 @@ function exit_popup_get_dimension( $option_name, $default = '' ) {
 
 function exit_popup_settings_page() { ?>
     <style type="text/css" >
-        .wrap {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 20px;
+        
+
+        .wrap.exit_popup {
+            max-width: 960px;
+            padding: 26px 30px 30px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
         }
 
         .postbox .inside h2, .wrap [class$="icon32"] + h2, .wrap h1, .wrap > h2:first-child {
@@ -97,7 +101,7 @@ function exit_popup_settings_page() { ?>
         }
 
     </style>
-<div class="wrap">
+<div class="wrap exit_popup">
 <h2><?php echo __('Exit Popup Settings', 'exit-popup'); ?></h2>
 <p><?php echo __('Exit Popup enables you to display a jQuery modal before a visitor leaves your website.', 'exit-popup'); ?></p>
 <form method="post" action="options.php">

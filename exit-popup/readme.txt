@@ -41,7 +41,8 @@ That's all!
 
 
 = Version 3.5 =
-1. Add responsive width and height option.
+1. Add mobile responsive width and height options.
+2. Layout fix for WP 7.x.
 
 = Version 3.4 =
 1. PHP 8.5 compatibility checkup.
